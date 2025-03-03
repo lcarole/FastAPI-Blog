@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      # Le fichier init.sql doit se trouver à la racine du projet (ou adapter le chemin)
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  blogapi:
+    image: lcarole/blogapi
+    container_name: blogapi
+    depends_on:
+      postgres:
+        condition: service_started
+    ports:
+      - "8001:8000"
+    environment:
+      # L'API devra récupérer la variable DATABASE_URL
+      DATABASE_URL: "postgresql://postgres:postgres@postgres/blog_db"
+    
